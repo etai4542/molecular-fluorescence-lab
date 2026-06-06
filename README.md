@@ -1,4 +1,4 @@
-# Quantitative Fluorescence Analysis & Beer-Lambert Law Boundaries
+# Quantitative Molecular Fluorescence Lab Analysis
 
 This repository contains a comprehensive MATLAB-based data processing and regression analysis suite designed to evaluate the operational boundaries of the Beer-Lambert law in molecular fluorescence. The toolkit processes experimental broadband emission spectra and spatial digital imaging data across various concentration series for three organic fluorophores: **Fluorescein**, **Rhodamine B**, and **Rhodamine 6G**.
 
@@ -8,10 +8,10 @@ The project is structured into two independent working directories representing 
 
 ## Directory Workspace Structure
 
-To ensure the automated execution of the scripts, organize the data paths and runtime environments according to the following layout matching the MATLAB Drive environment:
+To ensure the automated execution of the scripts, organize the data paths, raw spectra, and uploaded beam photographs according to the following layout matching your MATLAB Drive environment:
 
 ```text
-Fluorescence/
+molecular-fluorescence-lab/
 ├── Part A/                         # Isotropic Spectral Analysis Track
 │   ├── beer_lambert_analysis_A.m   # Main processing and fitting script for Part A
 │   ├── F/                          # Fluorescein raw spectral data (.csv files)
@@ -21,9 +21,9 @@ Fluorescence/
 │
 └── Part B/                         # Spatial Beam Attenuation Track
     ├── beer_lambert_analysis_B.m   # Main decay profiling and imaging script for Part B
-    ├── Fluorescein/                # Spatial attenuation tracking files for Fluorescein
-    ├── Rhodamine B/                # Spatial attenuation tracking files for Rhodamine B
-    ├── Rhodamine 6G/               # Spatial attenuation tracking files for Rhodamine 6G
+    ├── Fluorescein/                # Upload path for Fluorescein beam photos (e.g., F-0_1.jpg)
+    ├── Rhodamine B/                # Upload path for Rhodamine B beam photos (e.g., RB-0_05.jpg)
+    ├── Rhodamine 6G/               # Upload path for Rhodamine 6G beam photos (e.g., R6G-0_01.jpg)
     └── Figures_PartB/              # Automatically generated output folder for Part B plots
 ```
 
@@ -34,7 +34,7 @@ Fluorescence/
 ### Part A: Spectral Analysis Framework (`/Part A/beer_lambert_analysis_A.m`)
 
 #### Inputs & Core Arrays
-The script dynamically processes structured streams of matrix data from `.csv` files organized by fluorophore type and sample concentration. For each material, the workspace constructs three corresponding vector components:
+The script dynamically processes structured streams of matrix data from `.csv` files organized by fluorophore type subdirectories. For each material, the workspace constructs three corresponding vector components:
 * **Concentration Vector ($c$):** The complete series of sample concentrations prepared for observation.
 * **Integration Time Vector ($t_{\text{int}}$):** Tracks the manually adjusted exposure durations utilized during detector collection to prevent photon clipping or underexposure.
 * **Spectral Truncation Guard ($wl_{\text{min}}$):** Defines a strict lower-bound cutoff at $460\text{ nm}$ to filter out scattering residue from the light source and isolate the true emission profiles.
@@ -64,6 +64,8 @@ The spatial attenuation pipeline utilizes digital photography tracks captured ac
 A = imread('Rhodamine B/RB-0_05.jpg');
 figure; imagesc(im2double(A(:,:,1))); colorbar; axis image;
 ```
+*Note: Users must upload their raw beam attenuation photographs into the respective material folders utilizing the localized format notation (e.g., `F-[conc].jpg`, `RB-[conc].jpg`, `R6G-[conc].jpg`).*
+
 To optimize signal-to-noise separation, the framework isolates targeted R/G/B intensity matrices depending on the respective fluorescence color profile of the target dye (e.g., extracting channel 1 for the red-emitting Rhodamine compounds or channel 2 for Fluorescein).
 
 #### Coordinate Profiling & Path Definition
@@ -99,7 +101,13 @@ GENERATE_SPECTRA = false;  % Saves standalone raw and normalized emission spectr
 ```
 
 ### Generated File Outputs
-All figures are saved automatically to the local directory's designated subdirectory (`/Figures/` or `/Figures_PartB/`):
-* `Fig1a_GlobalLinearFits_norm.png` — Visual breakdown of full-range linear evaluation.
-* `Fig1b_DiluteLinearFits_norm.png` — Proportional verification inside the optically dilute bounds.
-* `Fig2_PolyFits_norm.png` — High-precision empirical tracking of non-linear attenuation profiles.
+
+#### Part A Outputs (Saved automatically into `/Part A/Figures/`)
+* `Fig1a_GlobalLinearFits_norm.png` — Visual breakdown of full-range linear evaluation for total emission.
+* `Fig1b_DiluteLinearFits_norm.png` — Proportional linear verification inside the isolated, optically dilute bounds.
+* `Fig2_PolyFits_norm.png` — High-precision empirical tracking of non-linear integrated fluorescence curves and peak suppression.
+
+#### Part B Outputs (Saved automatically into `/Part B/Figures_PartB/`)
+* Analytical spatial decay graphs ($\ln I$ versus distance) for individual concentrations.
+* Comprehensive $\alpha$ versus concentration summary regression panels (Linear and Polynomial models).
+```
